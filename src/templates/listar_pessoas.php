@@ -39,7 +39,6 @@
           <td><?php echo $item['st_celular_pes']; ?></td>
           <td>
             <a href="<?php echo $baseurl; ?>/edit/<?php echo $item['id_pessoa_pes']; ?>" type="button" class="btn btn-warning">Editar</a>
-            <a href="<?php echo $baseurl; ?>/remove/<?php echo $item['id_pessoa_pes']; ?>" type="button" class="btn btn-danger">Remover</a>
           </td>
         </tr>
       <?php } ?>
