@@ -7,6 +7,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app = new \Slim\App;
 $baseurl = '/crud/public';
+$access_token = 'a09f3cde-4060-3740-8b3a-5498b1d3fb88';
+$app_token = 'f9ad4d06-2373-3621-b8c3-e1fed4efea7e';
+
 
 $container = $app->getContainer();
 $container['view'] = function ($container) {
@@ -15,6 +18,12 @@ $container['view'] = function ($container) {
 $container['baseurl'] = $baseurl;
 
 $app->get('/', function (Request $request, Response $response, array $args) {
+    return $this->view->render($response, 'home.php', [
+        'baseurl' => $this->baseurl
+    ]);
+});
+
+$app->get('/pessoas', function (Request $request, Response $response, array $args) {
     if(isset($_GET["pagina"]) && !empty($_GET["pagina"])){
         $pagina = htmlspecialchars($_GET["pagina"]);
     } else {
@@ -33,8 +42,8 @@ $app->get('/', function (Request $request, Response $response, array $args) {
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => "",
     CURLOPT_HTTPHEADER => array(
-        "access_token: a09f3cde-4060-3740-8b3a-5498b1d3fb88",
-        "app_token: f9ad4d06-2373-3621-b8c3-e1fed4efea7e",
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
         "content-type: application/json"
     ),
     ));
@@ -59,7 +68,7 @@ $app->get('/', function (Request $request, Response $response, array $args) {
     }
 });
 
-$app->get('/edit/{id}', function (Request $request, Response $response, array $args) {
+$app->get('/pessoas/edit/{id}', function (Request $request, Response $response, array $args) {
     $route = $request->getAttribute('route');
     $id = $route->getArgument('id');
 
@@ -79,8 +88,8 @@ $app->get('/edit/{id}', function (Request $request, Response $response, array $a
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: a09f3cde-4060-3740-8b3a-5498b1d3fb88",
-        "app_token: f9ad4d06-2373-3621-b8c3-e1fed4efea7e",
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
         "content-type: application/json"
     ),
     ));
@@ -109,7 +118,7 @@ $app->get('/edit/{id}', function (Request $request, Response $response, array $a
     }
 });
 
-$app->post('/edit/{id}', function (Request $request, Response $response, array $args) use ($app) {
+$app->post('/pessoas/edit/{id}', function (Request $request, Response $response, array $args) use ($app) {
     $route = $request->getAttribute('route');
     $id = $route->getArgument('id');
 
@@ -132,8 +141,8 @@ $app->post('/edit/{id}', function (Request $request, Response $response, array $
     CURLOPT_CUSTOMREQUEST => "PUT",
     CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: a09f3cde-4060-3740-8b3a-5498b1d3fb88",
-        "app_token: f9ad4d06-2373-3621-b8c3-e1fed4efea7e",
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
         "content-type: application/json"
     ),
     ));
@@ -148,15 +157,15 @@ $app->post('/edit/{id}', function (Request $request, Response $response, array $
         exit;
     } else {
         // return $response->withRedirect('/crud/public/edit/'.$id);
-        return $response->withRedirect($this->baseurl);
+        return $response->withRedirect($this->baseurl.'/pessoas');
     }
 });
 
-$app->get('/add', function (Request $request, Response $response, array $args) {
+$app->get('/pessoas/add', function (Request $request, Response $response, array $args) {
     return $this->view->render($response, 'add_pessoa.php', []);
 });
 
-$app->post('/add', function (Request $request, Response $response, array $args) {
+$app->post('/pessoas/add', function (Request $request, Response $response, array $args) {
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -169,8 +178,8 @@ $app->post('/add', function (Request $request, Response $response, array $args) 
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_POSTFIELDS => json_encode($_POST),
     CURLOPT_HTTPHEADER => array(
-        "access_token: a09f3cde-4060-3740-8b3a-5498b1d3fb88",
-        "app_token: f9ad4d06-2373-3621-b8c3-e1fed4efea7e",
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
         "content-type: application/json"
     ),
     ));
@@ -184,11 +193,64 @@ $app->post('/add', function (Request $request, Response $response, array $args) 
         print_r($err);
         exit;
     } else {
-        return $response->withRedirect($this->baseurl);
+        $decoded = json_decode($res);
+        $message =  $decoded->msg;
+        $idPessoa = $decoded->data[0]->data->id_pessoa_pes;
+
+        return $this->view->render($response, 'pessoa_add_success.php', [
+            'baseurl' => $this->baseurl,
+            'id_pessoa' => $idPessoa,
+            'message' => $message
+        ]);
     }
 });
 
-$app->get('/add/imovel/{id}', function (Request $request, Response $response, array $args) {
+$app->get('/imoveis', function (Request $request, Response $response, array $args) {
+    if(isset($_GET["pagina"]) && !empty($_GET["pagina"])){
+        $pagina = htmlspecialchars($_GET["pagina"]);
+    } else {
+        $pagina = 1;
+    }
+    
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+    CURLOPT_URL => "http://apps.superlogica.net/imobiliaria/api/imoveis?pagina=".$pagina,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => "",
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => "GET",
+    CURLOPT_POSTFIELDS => "",
+    CURLOPT_HTTPHEADER => array(
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
+        "content-type: application/json"
+    ),
+    ));
+
+    $res = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+        print_r($err);
+        exit;
+    } else {
+        $data = json_decode($res, true);
+        $data = $data['data'];
+
+        return $this->view->render($response, 'listar_imoveis.php', [
+            'lista' => $data,
+            'pagina' => $pagina,
+            'baseurl' => $this->baseurl
+        ]);
+    }
+});
+
+$app->get('/imoveis/add/{id}', function (Request $request, Response $response, array $args) {
     $route = $request->getAttribute('route');
     $id = $route->getArgument('id');
     
@@ -198,18 +260,18 @@ $app->get('/add/imovel/{id}', function (Request $request, Response $response, ar
     ]);
 });
 
-$app->post('/add/imovel/{id}', function (Request $request, Response $response, array $args) {
+$app->post('/imoveis/add/{id}', function (Request $request, Response $response, array $args) {
     $json = $_POST;
 
+    $proprietario['ID_PESSOA_PES'] = intval($_POST['ID_PESSOA_PES']);
+    $proprietario['FL_PROPRIETARIO_PRB'] = 1;
+    $proprietario['NM_FRACAO_PRB'] = "100.00";
+
     $json['PROPRIETARIOS_BENEFICIARIOS'] = array(
-        array(
-            'ID_PESSOA_PES' => $_POST['ID_PESSOA_PES'],
-            'FL_PROPRIETARIO_PRB' => 1,
-            'NM_FRACAO_PRB' => "100.00"
-        )
+        $proprietario
     );
 
-    // print_r($json['PROPRIETARIOS_BENEFICIARIOS'][0]);
+    // print_r(json_encode($json));
     // exit;
     
     $curl = curl_init();
@@ -222,10 +284,10 @@ $app->post('/add/imovel/{id}', function (Request $request, Response $response, a
     CURLOPT_TIMEOUT => 30,
     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
     CURLOPT_CUSTOMREQUEST => "POST",
-    CURLOPT_POSTFIELDS => json_encode($_POST),
+    CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: a09f3cde-4060-3740-8b3a-5498b1d3fb88",
-        "app_token: f9ad4d06-2373-3621-b8c3-e1fed4efea7e",
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
         "content-type: application/json"
     ),
     ));
@@ -239,14 +301,75 @@ $app->post('/add/imovel/{id}', function (Request $request, Response $response, a
         print_r($err);
         exit;
     } else {
-        print_r($res);
-        exit;
-        return $response->withRedirect($baseurl);
+        $decoded = json_decode($res);
+        $message =  $decoded->msg;
+        $idImovel = $decoded->data[0]->data->id_imovel_imo;
+
+        return $this->view->render($response, 'imovel_add_success.php', [
+            'baseurl' => $this->baseurl,
+            'id_imovel' => $idImovel,
+            'message' => $message
+        ]);
     }
 });
 
+$app->get('/imovel/{id}', function (Request $request, Response $response, array $args) {
+    $route = $request->getAttribute('route');
+    $id = $route->getArgument('id');
+    
+    return $this->view->render($response, 'add_imovel.php', [
+        'baseurl' => $this->baseurl,
+        'id' => $id
+    ]);
+});
+
+$app->get('/contratos', function (Request $request, Response $response, array $args) {
+    if(isset($_GET["pagina"]) && !empty($_GET["pagina"])){
+        $pagina = htmlspecialchars($_GET["pagina"]);
+    } else {
+        $pagina = 1;
+    }
+    
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+    CURLOPT_URL => "http://apps.superlogica.net/imobiliaria/api/contratos?pagina=".$pagina,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => "",
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 30,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => "GET",
+    CURLOPT_POSTFIELDS => "",
+    CURLOPT_HTTPHEADER => array(
+        "access_token: ".$access_token,
+        "app_token: ".$app_token,
+        "content-type: application/json"
+    ),
+    ));
+
+    $res = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+        print_r($err);
+        exit;
+    } else {
+        $data = json_decode($res, true);
+        $data = $data['data'];
+
+        return $this->view->render($response, 'listar_contratos.php', [
+            'lista' => $data,
+            'pagina' => $pagina,
+            'baseurl' => $this->baseurl
+        ]);
+    }
+});
+
+$app->get('/contratos/add', function (Request $request, Response $response, array $args) {
+    return $this->view->render($response, 'add_contrato.php', []);
+});
+
 $app->run();
-
-// $math = new Matematica\Basica();
-
-// echo $math->somar(10, 11);

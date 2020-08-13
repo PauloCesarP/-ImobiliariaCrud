@@ -71,7 +71,7 @@
       </div>
 
       <button class="btn btn-primary" type="submit">Alterar</button>
-      <a href="<?php echo $baseurl;?>/add/imovel/<?php echo $dados[0]['id_pessoa_pes'];?>" class="btn btn-primary" type="submit">Adicionar Imóvel</a>
+      <a href="<?php echo $baseurl;?>/imoveis/add/<?php echo $dados[0]['id_pessoa_pes'];?>" class="btn btn-primary" type="submit">Adicionar Imóvel</a>
     </form>
 
     <!-- <?php print_r($dados); ?> -->
