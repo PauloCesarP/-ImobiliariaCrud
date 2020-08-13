@@ -7,8 +7,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app = new \Slim\App;
 $baseurl = '/crud/public';
-$access_token = 'a09f3cde-4060-3740-8b3a-5498b1d3fb88';
-$app_token = 'f9ad4d06-2373-3621-b8c3-e1fed4efea7e';
+$access_token = '1531ed1d-8b0c-355e-8c2f-c8d8aad1ba99';
+$app_token = '33bbafeb-df87-3889-bc7a-2ac564d2f2a9';
 
 
 $container = $app->getContainer();
@@ -16,6 +16,8 @@ $container['view'] = function ($container) {
     return new \Slim\Views\PhpRenderer('../src/templates');
 };
 $container['baseurl'] = $baseurl;
+$container['access_token'] = $access_token;
+$container['app_token'] = $app_token;
 
 $app->get('/', function (Request $request, Response $response, array $args) {
     return $this->view->render($response, 'home.php', [
@@ -42,8 +44,8 @@ $app->get('/pessoas', function (Request $request, Response $response, array $arg
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => "",
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -88,8 +90,8 @@ $app->get('/pessoas/edit/{id}', function (Request $request, Response $response, 
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -141,8 +143,8 @@ $app->post('/pessoas/edit/{id}', function (Request $request, Response $response,
     CURLOPT_CUSTOMREQUEST => "PUT",
     CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -178,8 +180,8 @@ $app->post('/pessoas/add', function (Request $request, Response $response, array
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_POSTFIELDS => json_encode($_POST),
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -224,8 +226,8 @@ $app->get('/imoveis', function (Request $request, Response $response, array $arg
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => "",
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -286,8 +288,8 @@ $app->post('/imoveis/add/{id}', function (Request $request, Response $response, 
     CURLOPT_CUSTOMREQUEST => "POST",
     CURLOPT_POSTFIELDS => json_encode($json),
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
@@ -342,8 +344,8 @@ $app->get('/contratos', function (Request $request, Response $response, array $a
     CURLOPT_CUSTOMREQUEST => "GET",
     CURLOPT_POSTFIELDS => "",
     CURLOPT_HTTPHEADER => array(
-        "access_token: ".$access_token,
-        "app_token: ".$app_token,
+        "access_token: ".$this->access_token,
+        "app_token: ".$this->app_token,
         "content-type: application/json"
     ),
     ));
